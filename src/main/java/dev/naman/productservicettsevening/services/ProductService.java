@@ -1,16 +1,19 @@
 package dev.naman.productservicettsevening.services;
 
 import dev.naman.productservicettsevening.dtos.ProductDto;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 public interface ProductService {
-    String getAllProducts();
+    List<ProductDto> getAllProducts();
 
-    String getSingleProduct(Long productId);
+    ProductDto getSingleProduct(Long productId);
 
-    String addNewProduct(ProductDto productDto);
+    ProductDto addNewProduct(ProductDto productDto);
 
-    String updateProduct(Long productId);
+    ProductDto updateProduct(Long productId,ProductDto productDto);
 
-    String deleteProduct(Long productId);
+    ProductDto deleteProduct(Long productId);
 }

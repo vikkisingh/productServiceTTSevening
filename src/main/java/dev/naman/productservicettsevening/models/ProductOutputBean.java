@@ -1,19 +1,18 @@
-package dev.naman.productservicettsevening.dtos;
+package dev.naman.productservicettsevening.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 @Getter
 @Setter
-@ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ProductDto {
-    private Long id;
+public class ProductOutputBean {
+    private int id;
     private String title;
     private double price;
     private String description;
-    private String image;
     private String category;
+    private String image;
+    private Rating rating;
 }
