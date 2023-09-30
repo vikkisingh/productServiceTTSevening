@@ -1,9 +1,17 @@
 package dev.naman.productservicettsevening.services;
 
+import dev.naman.productservicettsevening.client.FakeStoreProductClient;
 import dev.naman.productservicettsevening.dtos.ProductDto;
+import dev.naman.productservicettsevening.exception.IdNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.client.RestClientException;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.web.client.RequestCallback;
+import org.springframework.web.client.ResponseExtractor;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Repository;
@@ -13,69 +21,46 @@ import org.springframework.web.client.RestTemplate;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class FakeStoreProductServiceImpl implements ProductService {
 
-    private RestTemplateBuilder restTemplateBuilder;
+
+    private FakeStoreProductClient client;
 
     @Autowired
-    public FakeStoreProductServiceImpl(RestTemplateBuilder restTemplateBuilder){
-        this.restTemplateBuilder=restTemplateBuilder;
+    public FakeStoreProductServiceImpl(FakeStoreProductClient client){
+        this.client=client;
     }
     @Override
     public List<ProductDto> getAllProducts() {
-        RestTemplate restTemplate = restTemplateBuilder.build();
-        ResponseEntity<ProductDto[]> dtoList=restTemplate.getForEntity(
-                "https://fakestoreapi.com/products", ProductDto[].class);
-        List<ProductDto> answer = new ArrayList<>();
-
-        if(dtoList.getBody()!=null){
-            for(ProductDto dto:dtoList.getBody()){
-                ProductDto product=new ProductDto();
-                product.setId(dto.getId());
-                product.setTitle(dto.getTitle());
-                product.setDescription(dto.getDescription());
-                product.setPrice(dto.getPrice());
-                product.setImage(dto.getImage());
-                product.setCategory(dto.getCategory());
-                answer.add(product);
-            }
-        }
-
-        return answer;
+        return client.getAllProducts();
     }
 
     @Override
-    public ProductDto getSingleProduct(Long productId) {
-        RestTemplate restTemplate = restTemplateBuilder.build();
-        ResponseEntity<ProductDto>  response=restTemplate.getForEntity("https://fakestoreapi.com/products/{id}", ProductDto.class, productId);
+    public Optional<ProductDto> getSingleProduct(Long productId) {
+        return client.getSingleProduct(productId);
 
-        return response.getBody();
     }
 
     @Override
     public ProductDto addNewProduct(ProductDto productDto) {
-        RestTemplate restTemplate = restTemplateBuilder.build();
-        ResponseEntity<ProductDto> response = restTemplate.postForEntity("https://fakestoreapi.com/products", productDto, ProductDto.class);
-
-        return response.getBody();
+        return client.addNewProduct(productDto);
     }
 
     @Override
     public ProductDto updateProduct(Long productId,ProductDto productDto) {
-        RestTemplate restTemplate = restTemplateBuilder.build();
-        //ProductDto productDto1 = restTemplate.patchForObject("https://fakestoreapi.com/products/{id}", productDto, ProductDto.class, productId);
-        //restTemplate.put("https://fakestoreapi.com/products/{id}",ProductDto.class,productId);
-        restTemplate.put("https://fakestoreapi.com/products/{id}",productDto,productId);
-        productDto.setId(productId);
-        return productDto;
+        return client.updateProduct(productId,productDto);
+    }
+
+    @Override
+    public ProductDto replaceProduct(Long productId,ProductDto productDto) {
+        return client.replaceProduct(productId,productDto);
     }
 
     @Override
     public ProductDto deleteProduct(Long productId) {
-        RestTemplate restTemplate = restTemplateBuilder.build();
-        restTemplate.delete("https://fakestoreapi.com/products/{id}",productId);
-        return null;
+        return client.deleteProduct(productId);
     }
 }

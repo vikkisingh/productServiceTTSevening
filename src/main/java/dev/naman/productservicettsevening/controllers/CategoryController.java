@@ -1,13 +1,20 @@
 package dev.naman.productservicettsevening.controllers;
 
+import dev.naman.productservicettsevening.dtos.ProductDto;
+import dev.naman.productservicettsevening.exception.CategoryNotFoundException;
 import dev.naman.productservicettsevening.services.CategoryService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+import java.util.Optional;
+
 @RestController
-@RequestMapping("/products/categories")
+@RequestMapping("/products")
 public class CategoryController {
     private CategoryService categoryService;
 
@@ -15,13 +22,17 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
-    @GetMapping()
-    public String getAllCategories() {
-        return "Getting all categories";
+    @GetMapping("/categories")
+    public ResponseEntity<String[]> getAllCategories() {
+        return new ResponseEntity<>(categoryService.getAllCategories(),HttpStatus.OK);
     }
 
-    @GetMapping("/{categoryId}")
-    public String getProductsInCategory(@PathVariable("categoryId") Long categoryId) {
-        return "Get products in category";
+    @GetMapping("/category/{categoryName}")
+    public ResponseEntity<List<ProductDto>> getProductsInCategory(@PathVariable("categoryName") String categoryName) throws CategoryNotFoundException {
+        Optional<List<ProductDto>> productsInCategory = categoryService.getProductsInCategory(categoryName);
+        if(productsInCategory.isEmpty()){
+            throw new CategoryNotFoundException("Category Not found with name "+categoryName);
+        }
+        return new ResponseEntity<>(productsInCategory.get(), HttpStatus.OK);
     }
 }
